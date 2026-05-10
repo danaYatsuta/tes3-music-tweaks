@@ -1,42 +1,38 @@
 -- hello whoever is reading this code (including myself in the future). this is an attempt to implement a state machine in
 -- a language that barely has any features to do so, done by a person who barely knows what they're doing.
 -- please enjoy
--- 
--- Music states
-local EXPLORE = 0
-local COMBAT = 1
-local PAUSE = 2
-local DUNGEON = 3
--- Title music, level up, death, etc
-local OTHER = 4
+--
+-- "Enum" of possible music states; OTHER is title, level up, death, etc
+local MusicState = { EXPLORE = "explore", COMBAT = "combat", PAUSE = "pause", DUNGEON = "dungeon", OTHER = "other" }
 
-local musicStates = { EXPLORE, COMBAT, PAUSE, DUNGEON, OTHER }
+-- Lookup table for the "enum"; populated in initialized
+local validMusicState = {}
 
 -- Current music state. Starts out as OTHER because the game begins at main menu
 -- Should NEVER be written to outside of setState function
-local musicState = OTHER
+local currentMusicState = MusicState.OTHER
 
 -- Should NEVER be called outside of stateExplore/stateCombat/etc functions 
 local function setMusicState(newMusicState)
-	if not musicStates[newMusicState] then
+	if not validMusicState[newMusicState] then
 		return
 	end
 
-	tes3.messageBox("New music state: " .. musicState)
-	musicState = newMusicState
+	tes3.messageBox("New music state: " .. newMusicState)
+	currentMusicState = newMusicState
 end
 
 local function statePause()
-	setMusicState(PAUSE)
+	setMusicState(MusicState.PAUSE)
 end
 
 local function stateDungeon()
-	setMusicState(DUNGEON)
+	setMusicState(MusicState.DUNGEON)
 end
 
 --- @param e cellChangedEventData
 local function cellChangedCallback(e)
-	if musicState == OTHER then
+	if currentMusicState == MusicState.OTHER then
 		if (e.cell.isOrBehavesAsExterior or e.cell.restingIsIllegal) then
 			statePause()
 		else
@@ -46,6 +42,10 @@ local function cellChangedCallback(e)
 end
 
 local function initialized()
+	for _, v in pairs(MusicState) do
+		validMusicState[v] = true
+	end
+
 	event.register(tes3.event.cellChanged, cellChangedCallback)
 	print("[Music Tweaks: INFO] Music Tweaks Initialized")
 end
