@@ -30,13 +30,26 @@ local function stateDungeon()
 	setMusicState(MusicState.DUNGEON)
 end
 
+--- @param cell tes3cell
+local function isCellDungeon(cell)
+	if cell.isOrBehavesAsExterior or cell.restingIsIllegal then
+		return false
+	end
+
+	return true
+end
+
 --- @param e cellChangedEventData
 local function cellChangedCallback(e)
-	if currentMusicState == MusicState.OTHER then
-		if (e.cell.isOrBehavesAsExterior or e.cell.restingIsIllegal) then
-			statePause()
-		else
+	if currentMusicState == MusicState.PAUSE then
+		if isCellDungeon(e.cell) then
 			stateDungeon()
+		end
+	elseif currentMusicState == MusicState.OTHER then
+		if isCellDungeon(e.cell) then
+			stateDungeon()
+		else
+			statePause()
 		end
 	end
 end
