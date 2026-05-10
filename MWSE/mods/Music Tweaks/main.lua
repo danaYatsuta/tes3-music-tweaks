@@ -1,3 +1,7 @@
+-- hello whoever is reading this code (including myself in the future). this is an attempt to implement a state machine in
+-- a language that barely has any features to do so, done by a person who barely knows what they're doing.
+-- please enjoy
+-- 
 -- Music states
 local EXPLORE = 0
 local COMBAT = 1
