@@ -22,12 +22,12 @@ local function setMusicState(newMusicState)
 	currentMusicState = newMusicState
 end
 
-local function statePause()
-	setMusicState(MusicState.PAUSE)
-end
-
 local function stateDungeon()
 	setMusicState(MusicState.DUNGEON)
+end
+
+local function statePause()
+	setMusicState(MusicState.PAUSE)
 end
 
 --- @param cell tes3cell
