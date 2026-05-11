@@ -82,6 +82,17 @@ local function combatStartCallback(e)
 	end
 end
 
+--- @param e combatStopEventData
+local function combatStopCallback(e)
+	if currentMusicState == MusicState.COMBAT then
+		if isCellDungeon(tes3.player.cell) then
+			stateDungeon()
+		else
+			statePause()
+		end
+	end
+end
+
 --- @param e musicChangeTrackEventData
 local function musicChangeTrackCallback(e)
 	if currentMusicState == MusicState.EXPLORE then
@@ -98,6 +109,7 @@ local function initialized()
 
 	event.register(tes3.event.cellChanged, cellChangedCallback)
 	event.register(tes3.event.combatStart, combatStartCallback)
+	event.register(tes3.event.combatStop, combatStopCallback)
 	event.register(tes3.event.musicChangeTrack, musicChangeTrackCallback)
 
 	print("[Music Tweaks: INFO] Music Tweaks Initialized")
