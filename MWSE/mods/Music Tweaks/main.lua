@@ -68,7 +68,8 @@ end
 
 --- @param e combatStartEventData
 local function combatStartCallback(e)
-	if currentMusicState == MusicState.EXPLORE then
+	if currentMusicState == MusicState.DUNGEON or currentMusicState == MusicState.EXPLORE or currentMusicState ==
+	MusicState.PAUSE then
 		if e.target.reference ~= tes3.player then
 			return
 		end
