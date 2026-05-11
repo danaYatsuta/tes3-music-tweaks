@@ -3,7 +3,7 @@
 -- please enjoy
 --
 -- "Enum" of possible music states; OTHER is title, level up, death, etc
-local MusicState = { EXPLORE = "explore", COMBAT = "combat", PAUSE = "pause", DUNGEON = "dungeon", OTHER = "other" }
+local MusicState = { COMBAT = "combat", DUNGEON = "dungeon", EXPLORE = "explore", OTHER = "other", PAUSE = "pause" }
 
 -- Lookup table for the "enum"; populated in initialized
 local validMusicState = {}
@@ -41,15 +41,11 @@ end
 
 --- @param e cellChangedEventData
 local function cellChangedCallback(e)
-	if currentMusicState == MusicState.EXPLORE then
-		if isCellDungeon(e.cell) then
-			stateDungeon()
-		end
-	elseif currentMusicState == MusicState.DUNGEON then
+	if currentMusicState == MusicState.DUNGEON then
 		if not isCellDungeon(e.cell) then
 			statePause()
 		end
-	elseif currentMusicState == MusicState.PAUSE then
+	elseif currentMusicState == MusicState.EXPLORE then
 		if isCellDungeon(e.cell) then
 			stateDungeon()
 		end
@@ -58,6 +54,10 @@ local function cellChangedCallback(e)
 			stateDungeon()
 		else
 			statePause()
+		end
+	elseif currentMusicState == MusicState.PAUSE then
+		if isCellDungeon(e.cell) then
+			stateDungeon()
 		end
 	end
 end
