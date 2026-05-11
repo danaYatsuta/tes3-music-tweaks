@@ -62,12 +62,23 @@ local function cellChangedCallback(e)
 	end
 end
 
+--- @param e musicChangeTrackEventData
+local function musicChangeTrackCallback(e)
+	if currentMusicState == MusicState.EXPLORE then
+		if e.context == "explore" then
+			statePause()
+		end
+	end
+end
+
 local function initialized()
 	for _, v in pairs(MusicState) do
 		validMusicState[v] = true
 	end
 
 	event.register(tes3.event.cellChanged, cellChangedCallback)
+	event.register(tes3.event.musicChangeTrack, musicChangeTrackCallback)
+
 	print("[Music Tweaks: INFO] Music Tweaks Initialized")
 end
 
