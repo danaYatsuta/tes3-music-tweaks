@@ -18,6 +18,7 @@ local function setMusicState(newMusicState)
 		return
 	end
 
+	print("[Music Tweaks: DEBUG] New music state: " .. newMusicState)
 	tes3.messageBox("New music state: " .. newMusicState)
 	currentMusicState = newMusicState
 end
