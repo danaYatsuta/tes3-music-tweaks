@@ -22,6 +22,10 @@ local function setMusicState(newMusicState)
 	currentMusicState = newMusicState
 end
 
+local function stateCombat()
+	setMusicState(MusicState.COMBAT)
+end
+
 local function stateDungeon()
 	setMusicState(MusicState.DUNGEON)
 end
@@ -62,6 +66,21 @@ local function cellChangedCallback(e)
 	end
 end
 
+--- @param e combatStartEventData
+local function combatStartCallback(e)
+	if currentMusicState == MusicState.EXPLORE then
+		if e.target.reference ~= tes3.player then
+			return
+		end
+
+		local enemy = e.actor.reference.object
+
+		if enemy.level * 2 > tes3.player.object.level and (enemy.objectType ~= tes3.objectType.creature or enemy.level > 2) then
+			stateCombat()
+		end
+	end
+end
+
 --- @param e musicChangeTrackEventData
 local function musicChangeTrackCallback(e)
 	if currentMusicState == MusicState.EXPLORE then
@@ -77,6 +96,7 @@ local function initialized()
 	end
 
 	event.register(tes3.event.cellChanged, cellChangedCallback)
+	event.register(tes3.event.combatStart, combatStartCallback)
 	event.register(tes3.event.musicChangeTrack, musicChangeTrackCallback)
 
 	print("[Music Tweaks: INFO] Music Tweaks Initialized")
