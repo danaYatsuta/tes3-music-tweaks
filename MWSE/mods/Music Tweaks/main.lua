@@ -64,7 +64,7 @@ local function cellChangedCallback(e)
 		if not isInDungeon then
 			statePause()
 		end
-	elseif currentMusicState == MusicState.EXPLORE then
+	elseif currentMusicState == MusicState.EXPLORE or currentMusicState == MusicState.PAUSE then
 		if isInDungeon then
 			stateDungeon()
 		end
@@ -73,10 +73,6 @@ local function cellChangedCallback(e)
 			stateDungeon()
 		else
 			statePause()
-		end
-	elseif currentMusicState == MusicState.PAUSE then
-		if isInDungeon then
-			stateDungeon()
 		end
 	end
 end
