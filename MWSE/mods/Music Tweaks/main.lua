@@ -41,7 +41,11 @@ end
 
 --- @param e cellChangedEventData
 local function cellChangedCallback(e)
-	if currentMusicState == MusicState.DUNGEON then
+	if currentMusicState == MusicState.EXPLORE then
+		if isCellDungeon(e.cell) then
+			stateDungeon()
+		end
+	elseif currentMusicState == MusicState.DUNGEON then
 		if not isCellDungeon(e.cell) then
 			statePause()
 		end
