@@ -46,22 +46,36 @@ end
 
 --- @param e cellChangedEventData
 local function cellChangedCallback(e)
-	if currentMusicState == MusicState.DUNGEON then
-		if not isCellDungeon(e.cell) then
+	local isInDungeon = isCellDungeon(e.cell)
+
+	if currentMusicState == MusicState.COMBAT then
+		if e.previousCell == nil then
+			error("e.previousCell is nil when it shouldn't be!")
+		end
+
+		local wasInDungeon = isCellDungeon(e.previousCell)
+
+		if isInDungeon and not wasInDungeon then
+			stateDungeon()
+		elseif not isInDungeon and wasInDungeon then
+			statePause()
+		end
+	elseif currentMusicState == MusicState.DUNGEON then
+		if not isInDungeon then
 			statePause()
 		end
 	elseif currentMusicState == MusicState.EXPLORE then
-		if isCellDungeon(e.cell) then
+		if isInDungeon then
 			stateDungeon()
 		end
 	elseif currentMusicState == MusicState.OTHER then
-		if isCellDungeon(e.cell) then
+		if isInDungeon then
 			stateDungeon()
 		else
 			statePause()
 		end
 	elseif currentMusicState == MusicState.PAUSE then
-		if isCellDungeon(e.cell) then
+		if isInDungeon then
 			stateDungeon()
 		end
 	end
@@ -113,7 +127,7 @@ local function initialized()
 	event.register(tes3.event.combatStop, combatStopCallback)
 	event.register(tes3.event.musicChangeTrack, musicChangeTrackCallback)
 
-	print("[Music Tweaks: INFO] Music Tweaks Initialized")
+	print("[Music Tweaks: INFO] Music Tweaks initialized")
 end
 
 event.register(tes3.event.initialized, initialized)
