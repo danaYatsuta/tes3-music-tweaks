@@ -136,6 +136,8 @@ end
 
 --- @param e musicChangeTrackEventData
 local function musicChangeTrackCallback(e)
+	print("[Music Tweaks: DEBUG] musicChangeTrackCallback called")
+
 	if e.context ~= "combat" and e.context ~= "explore" then
 		return
 	end
