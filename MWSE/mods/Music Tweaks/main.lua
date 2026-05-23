@@ -31,8 +31,18 @@ local function stateDungeon()
 	setMusicState(MusicState.DUNGEON)
 end
 
+local function stateExplore()
+	setMusicState(MusicState.EXPLORE)
+
+	tes3.skipToNextMusicTrack({ force = true })
+end
+
 local function statePause()
 	setMusicState(MusicState.PAUSE)
+
+	tes3.worldController.audioController:changeMusicTrack("data files/music/silence.mp3")
+
+	timer.start({ duration = 5, callback = stateExplore, type = timer.real })
 end
 
 --- @param cell tes3cell
@@ -100,9 +110,15 @@ end
 
 --- @param e musicChangeTrackEventData
 local function musicChangeTrackCallback(e)
+	if e.context == "lua" then
+		return
+	end
+
 	if currentMusicState == MusicState.EXPLORE then
 		if e.context == "explore" then
 			statePause()
+
+			return false
 		end
 	end
 end
