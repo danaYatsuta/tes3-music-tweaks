@@ -64,6 +64,10 @@ local function stateDungeon()
 	changeMusicTrackToSilence()
 end
 
+local function stateOther()
+	setMusicState(MusicState.OTHER)
+end
+
 local function statePause()
 	setMusicState(MusicState.PAUSE)
 
@@ -154,6 +158,12 @@ local function musicChangeTrackCallback(e)
 
 end
 
+--- @param e loadEventData
+local function loadCallback(e)
+	stateOther()
+	stopStateExploreTimer()
+end
+
 local function initialized()
 	for _, v in pairs(MusicState) do
 		validMusicState[v] = true
@@ -163,6 +173,7 @@ local function initialized()
 	event.register(tes3.event.combatStart, combatStartCallback)
 	event.register(tes3.event.combatStopped, combatStoppedCallback)
 	event.register(tes3.event.musicChangeTrack, musicChangeTrackCallback)
+	event.register(tes3.event.load, loadCallback)
 
 	print("[Music Tweaks: INFO] Music Tweaks initialized")
 end
