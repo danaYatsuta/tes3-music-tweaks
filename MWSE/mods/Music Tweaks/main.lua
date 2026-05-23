@@ -46,30 +46,20 @@ end
 
 --- @param e cellChangedEventData
 local function cellChangedCallback(e)
-	local isInDungeon = isCellDungeon(e.cell)
+	if tes3.mobilePlayer.inCombat then
+		return
+	end
 
-	if currentMusicState == MusicState.COMBAT then
-		if e.previousCell == nil then
-			error("e.previousCell is nil when it shouldn't be!")
-		end
-
-		local wasInDungeon = isCellDungeon(e.previousCell)
-
-		if isInDungeon and not wasInDungeon then
-			stateDungeon()
-		elseif not isInDungeon and wasInDungeon then
-			statePause()
-		end
-	elseif currentMusicState == MusicState.DUNGEON then
-		if not isInDungeon then
+	if currentMusicState == MusicState.DUNGEON then
+		if not isCellDungeon(e.cell) then
 			statePause()
 		end
 	elseif currentMusicState == MusicState.EXPLORE or currentMusicState == MusicState.PAUSE then
-		if isInDungeon then
+		if isCellDungeon(e.cell) then
 			stateDungeon()
 		end
 	elseif currentMusicState == MusicState.OTHER then
-		if isInDungeon then
+		if isCellDungeon(e.cell) then
 			stateDungeon()
 		else
 			statePause()
