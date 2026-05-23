@@ -12,7 +12,7 @@ local validMusicState = {}
 -- Should NEVER be written to outside of setState function
 local currentMusicState = MusicState.OTHER
 
--- Should NEVER be called outside of stateExplore/stateCombat/etc functions 
+-- Should NEVER be called outside of stateExplore/stateCombat/etc functions
 local function setMusicState(newMusicState)
 	if not validMusicState[newMusicState] then
 		return
@@ -83,8 +83,12 @@ local function combatStartCallback(e)
 		return
 	end
 
-	if currentMusicState == MusicState.DUNGEON or currentMusicState == MusicState.EXPLORE or currentMusicState ==
-	MusicState.PAUSE then
+	-- LuaFormatter off
+	if
+		currentMusicState == MusicState.DUNGEON or
+		currentMusicState == MusicState.EXPLORE or
+		currentMusicState == MusicState.PAUSE then
+	-- LuaFormatter on
 		local enemy = e.actor.reference.object
 
 		if enemy.level * 2 > tes3.player.object.level and (enemy.objectType ~= tes3.objectType.creature or enemy.level > 2) then
