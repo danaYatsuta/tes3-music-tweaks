@@ -28,7 +28,7 @@ end
 local function stateExplore()
 	setMusicState(MusicState.EXPLORE)
 
-	tes3.skipToNextMusicTrack({ force = true })
+	tes3.skipToNextMusicTrack({ situation = tes3.musicSituation.explore, force = true })
 end
 
 -- Should NEVER be accessed outside of startStateExploreTimer and stopStateExploreTimer
@@ -43,7 +43,7 @@ end
 local function startStateExploreTimer()
 	stopStateExploreTimer()
 
-	stateExploreTimer = timer.start({ duration = 5, callback = stateExplore, type = timer.real })
+	stateExploreTimer = timer.start({ duration = math.random(60, 120), callback = stateExplore, type = timer.real })
 end
 
 local function changeMusicTrackToSilence()
@@ -52,6 +52,9 @@ end
 
 local function stateCombat()
 	setMusicState(MusicState.COMBAT)
+
+	stopStateExploreTimer()
+	tes3.skipToNextMusicTrack({ situation = tes3.musicSituation.combat, force = true })
 end
 
 local function stateDungeon()
@@ -133,19 +136,20 @@ end
 
 --- @param e musicChangeTrackEventData
 local function musicChangeTrackCallback(e)
-	if e.context == "lua" then
+	if e.context ~= "combat" and e.context ~= "explore" then
 		return
 	end
 
 	if currentMusicState == MusicState.EXPLORE then
-		if e.context == "explore" then
-			statePause()
-
-			return false
-		end
+		statePause()
 	elseif currentMusicState == MusicState.DUNGEON then
 		e.music = SILENCE_FILEPATH
+
+		return
 	end
+
+	return false
+
 end
 
 local function initialized()
