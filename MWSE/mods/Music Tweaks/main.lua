@@ -8,6 +8,8 @@ local MusicState = { COMBAT = "combat", DUNGEON = "dungeon", EXPLORE = "explore"
 -- Lookup table for the "enum"; populated in initialized
 local validMusicState = {}
 
+local SILENCE_FILEPATH = "data files/music/silence.mp3"
+
 -- Current music state. Starts out as OTHER because the game begins at main menu
 -- Should NEVER be written to outside of setState function
 local currentMusicState = MusicState.OTHER
@@ -23,26 +25,47 @@ local function setMusicState(newMusicState)
 	currentMusicState = newMusicState
 end
 
-local function stateCombat()
-	setMusicState(MusicState.COMBAT)
-end
-
-local function stateDungeon()
-	setMusicState(MusicState.DUNGEON)
-end
-
 local function stateExplore()
 	setMusicState(MusicState.EXPLORE)
 
 	tes3.skipToNextMusicTrack({ force = true })
 end
 
+-- Should NEVER be accessed outside of startStateExploreTimer and stopStateExploreTimer
+local stateExploreTimer = nil
+
+local function stopStateExploreTimer()
+	if stateExploreTimer then
+		stateExploreTimer:cancel()
+	end
+end
+
+local function startStateExploreTimer()
+	stopStateExploreTimer()
+
+	stateExploreTimer = timer.start({ duration = 5, callback = stateExplore, type = timer.real })
+end
+
+local function changeMusicTrackToSilence()
+	tes3.worldController.audioController:changeMusicTrack(SILENCE_FILEPATH)
+end
+
+local function stateCombat()
+	setMusicState(MusicState.COMBAT)
+end
+
+local function stateDungeon()
+	setMusicState(MusicState.DUNGEON)
+
+	stopStateExploreTimer()
+	changeMusicTrackToSilence()
+end
+
 local function statePause()
 	setMusicState(MusicState.PAUSE)
 
-	tes3.worldController.audioController:changeMusicTrack("data files/music/silence.mp3")
-
-	timer.start({ duration = 5, callback = stateExplore, type = timer.real })
+	changeMusicTrackToSilence()
+	startStateExploreTimer()
 end
 
 --- @param cell tes3cell
@@ -120,6 +143,8 @@ local function musicChangeTrackCallback(e)
 
 			return false
 		end
+	elseif currentMusicState == MusicState.DUNGEON then
+		e.music = SILENCE_FILEPATH
 	end
 end
 
