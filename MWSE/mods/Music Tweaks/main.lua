@@ -79,11 +79,20 @@ end
 
 --- @param cell tes3cell
 local function isCellDungeon(cell)
-	if cell.isOrBehavesAsExterior or cell.restingIsIllegal then
-		return false
+
+	local isInHostileInterior = not cell.isOrBehavesAsExterior and not cell.restingIsIllegal
+
+	-- LuaFormatter off
+	local isInRedMountainBeforeMainQuestComplete =
+		cell.region.name == "Red Mountain Region" and
+	    tes3.getJournalIndex({ id = "C3_DestroyDagoth" }) ~= 50
+	-- LuaFormatter on
+
+	if isInHostileInterior or isInRedMountainBeforeMainQuestComplete then
+		return true
 	end
 
-	return true
+	return false
 end
 
 --- @param e cellChangedEventData
