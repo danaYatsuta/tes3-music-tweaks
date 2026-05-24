@@ -85,7 +85,6 @@ end
 
 --- @param cell tes3cell
 local function isCellDungeon(cell)
-
 	local isInHostileInterior = not cell.isOrBehavesAsExterior and not cell.restingIsIllegal
 
 	-- LuaFormatter off
@@ -110,7 +109,11 @@ local function cellChangedCallback(e)
 
 	if currentMusicState == MusicState.DUNGEON then
 		if not isCellDungeon(e.cell) then
-			statePause()
+			if config.enablePause then
+				statePause()
+			else
+				stateExplore()
+			end
 		end
 	elseif currentMusicState == MusicState.EXPLORE or currentMusicState == MusicState.PAUSE then
 		if isCellDungeon(e.cell) then
@@ -119,8 +122,10 @@ local function cellChangedCallback(e)
 	elseif currentMusicState == MusicState.OTHER then
 		if isCellDungeon(e.cell) then
 			stateDungeon()
-		else
+		elseif config.enablePause then
 			statePause()
+		else
+			stateExplore()
 		end
 	end
 end
@@ -152,8 +157,10 @@ local function combatStoppedCallback(e)
 	if currentMusicState == MusicState.COMBAT and not tes3.mobilePlayer.inCombat then
 		if isCellDungeon(tes3.player.cell) then
 			stateDungeon()
-		else
+		elseif config.enablePause then
 			statePause()
+		else
+			stateExplore()
 		end
 	end
 end
@@ -175,7 +182,11 @@ local function musicChangeTrackCallback(e)
 
 		return
 	elseif currentMusicState == MusicState.EXPLORE then
-		statePause()
+		if config.enablePause then
+			statePause()
+		else
+			return
+		end
 	end
 
 	return false
