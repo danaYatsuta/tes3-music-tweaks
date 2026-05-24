@@ -149,16 +149,19 @@ local function musicChangeTrackCallback(e)
 		return
 	end
 
-	if currentMusicState == MusicState.EXPLORE then
-		statePause()
+	if currentMusicState == MusicState.COMBAT then
+		if e.context == "combat" then
+			return
+		end
 	elseif currentMusicState == MusicState.DUNGEON then
 		e.music = SILENCE_FILEPATH
 
 		return
+	elseif currentMusicState == MusicState.EXPLORE then
+		statePause()
 	end
 
 	return false
-
 end
 
 --- @param e loadEventData
