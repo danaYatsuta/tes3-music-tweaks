@@ -119,7 +119,8 @@ local function combatStartCallback(e)
 	if
 		currentMusicState == MusicState.DUNGEON or
 		currentMusicState == MusicState.EXPLORE or
-		currentMusicState == MusicState.PAUSE then
+		currentMusicState == MusicState.PAUSE
+	then
 	-- LuaFormatter on
 		local enemy = e.actor.reference.object
 
