@@ -66,6 +66,8 @@ end
 
 local function stateOther()
 	setMusicState(MusicState.OTHER)
+
+	stopStateExploreTimer()
 end
 
 local function statePause()
@@ -161,7 +163,6 @@ end
 --- @param e loadEventData
 local function loadCallback(e)
 	stateOther()
-	stopStateExploreTimer()
 end
 
 local function initialized()
