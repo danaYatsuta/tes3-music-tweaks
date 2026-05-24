@@ -85,6 +85,10 @@ end
 
 --- @param cell tes3cell
 local function isCellDungeon(cell)
+if not config.enableNoExploreInDungeons then
+		return false
+	end
+
 	local isInHostileInterior = not cell.isOrBehavesAsExterior and not cell.restingIsIllegal
 
 	-- LuaFormatter off
