@@ -139,7 +139,8 @@ local function combatStartCallback(e)
 	-- LuaFormatter on
 		local enemy = e.actor.reference.object
 
-		if enemy.level * 2 > tes3.player.object.level and (enemy.objectType ~= tes3.objectType.creature or enemy.level > 2) then
+		if enemy.level * 2 > tes3.player.object.level and (enemy.objectType ~= tes3.objectType.creature or enemy.level > 2) or
+		not config.enableNoCombatForWeakEnemies then
 			stateCombat()
 		end
 	end
