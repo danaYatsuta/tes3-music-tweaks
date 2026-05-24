@@ -90,6 +90,7 @@ local function isCellDungeon(cell)
 
 	-- LuaFormatter off
 	local isInRedMountainBeforeMainQuestComplete =
+		cell.isOrBehavesAsExterior and
 		cell.region.name == "Red Mountain Region" and
 	    tes3.getJournalIndex({ id = "C3_DestroyDagoth" }) ~= 50
 	-- LuaFormatter on
