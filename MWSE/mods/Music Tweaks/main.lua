@@ -2,6 +2,8 @@
 -- a language that barely has any features to do so, done by a person who barely knows what they're doing.
 -- please enjoy
 --
+local config = require("Music Tweaks.config")
+
 -- "Enum" of possible music states; OTHER is title, level up, death, etc
 local MusicState = { COMBAT = "combat", DUNGEON = "dungeon", EXPLORE = "explore", OTHER = "other", PAUSE = "pause" }
 
@@ -43,7 +45,11 @@ end
 local function startStateExploreTimer()
 	stopStateExploreTimer()
 
-	stateExploreTimer = timer.start({ duration = math.random(60, 120), callback = stateExplore, type = timer.real })
+	stateExploreTimer = timer.start({
+		duration = math.random(config.minPause, config.maxPause),
+		callback = stateExplore,
+		type = timer.real,
+	})
 end
 
 local function changeMusicTrackToSilence()
