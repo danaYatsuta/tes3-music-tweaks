@@ -193,3 +193,5 @@ local function initialized()
 end
 
 event.register(tes3.event.initialized, initialized)
+
+dofile("Music Tweaks.mcm")
