@@ -1,91 +1,14 @@
--- hello whoever is reading this code (including myself in the future). this is an attempt to implement a state machine in
--- a language that barely has any features to do so, done by a person who barely knows what they're doing.
--- please enjoy
---
 local config = require("Music Tweaks.config")
+local constants = require("Music Tweaks.constants")
+local MusicStateMachine = require("Music Tweaks.musicStateMachine")
 
--- "Enum" of possible music states; OTHER is title, level up, death, etc
-local MusicState = { COMBAT = "combat", DUNGEON = "dungeon", EXPLORE = "explore", OTHER = "other", PAUSE = "pause" }
+local musicStateMachine = MusicStateMachine:new()
 
--- Lookup table for the "enum"; populated in initialized
-local validMusicState = {}
-
-local SILENCE_FILEPATH = "data files/music/silence.mp3"
-
--- Current music state. Starts out as OTHER because the game begins at main menu
--- Should NEVER be written to outside of setState function
-local currentMusicState = MusicState.OTHER
-
--- Should NEVER be called outside of stateExplore/stateCombat/etc functions
-local function setMusicState(newMusicState)
-	if not validMusicState[newMusicState] then
-		return
-	end
-
-	print("[Music Tweaks: DEBUG] New music state: " .. newMusicState)
-	-- tes3.messageBox("New music state: " .. newMusicState)
-	currentMusicState = newMusicState
-end
-
-local function stateExplore()
-	setMusicState(MusicState.EXPLORE)
-
-	tes3.skipToNextMusicTrack({ situation = tes3.musicSituation.explore, force = true })
-end
-
--- Should NEVER be accessed outside of startStateExploreTimer and stopStateExploreTimer
-local stateExploreTimer = nil
-
-local function stopStateExploreTimer()
-	if stateExploreTimer then
-		stateExploreTimer:cancel()
-	end
-end
-
-local function startStateExploreTimer()
-	stopStateExploreTimer()
-
-	stateExploreTimer = timer.start({
-		duration = math.random(config.minPause, config.maxPause),
-		callback = stateExplore,
-		type = timer.real,
-	})
-end
-
-local function changeMusicTrackToSilence()
-	tes3.worldController.audioController:changeMusicTrack(SILENCE_FILEPATH)
-end
-
-local function stateCombat()
-	setMusicState(MusicState.COMBAT)
-
-	stopStateExploreTimer()
-	tes3.skipToNextMusicTrack({ situation = tes3.musicSituation.combat, force = true })
-end
-
-local function stateDungeon()
-	setMusicState(MusicState.DUNGEON)
-
-	stopStateExploreTimer()
-	changeMusicTrackToSilence()
-end
-
-local function stateOther()
-	setMusicState(MusicState.OTHER)
-
-	stopStateExploreTimer()
-end
-
-local function statePause()
-	setMusicState(MusicState.PAUSE)
-
-	changeMusicTrackToSilence()
-	startStateExploreTimer()
-end
+-- ---------------------------- Helper Functions ---------------------------- --
 
 --- @param cell tes3cell
 local function isCellDungeon(cell)
-if not config.enableNoExploreInDungeons then
+	if not config.enableNoExploreInDungeons then
 		return false
 	end
 
@@ -105,31 +28,34 @@ if not config.enableNoExploreInDungeons then
 	return false
 end
 
+-- ----------------------------- Event Callbacks ---------------------------- --
+
 --- @param e cellChangedEventData
 local function cellChangedCallback(e)
 	if tes3.mobilePlayer.inCombat then
 		return
 	end
 
-	if currentMusicState == MusicState.DUNGEON then
+	if musicStateMachine.state == musicStateMachine.STATE.DUNGEON then
 		if not isCellDungeon(e.cell) then
 			if config.enablePause then
-				statePause()
+				musicStateMachine:statePause()
 			else
-				stateExplore()
+				musicStateMachine:stateExplore()
 			end
 		end
-	elseif currentMusicState == MusicState.EXPLORE or currentMusicState == MusicState.PAUSE then
+	elseif musicStateMachine.state == musicStateMachine.STATE.EXPLORE or musicStateMachine.state ==
+	musicStateMachine.STATE.PAUSE then
 		if isCellDungeon(e.cell) then
-			stateDungeon()
+			musicStateMachine:stateDungeon()
 		end
-	elseif currentMusicState == MusicState.OTHER then
+	elseif musicStateMachine.state == musicStateMachine.STATE.OTHER then
 		if isCellDungeon(e.cell) then
-			stateDungeon()
+			musicStateMachine:stateDungeon()
 		elseif config.enablePause then
-			statePause()
+			musicStateMachine:statePause()
 		else
-			stateExplore()
+			musicStateMachine:stateExplore()
 		end
 	end
 end
@@ -142,52 +68,53 @@ local function combatStartCallback(e)
 
 	-- LuaFormatter off
 	if
-		currentMusicState == MusicState.DUNGEON or
-		currentMusicState == MusicState.EXPLORE or
-		currentMusicState == MusicState.PAUSE
+		musicStateMachine.state == musicStateMachine.STATE.DUNGEON or
+		musicStateMachine.state == musicStateMachine.STATE.EXPLORE or
+		musicStateMachine.state == musicStateMachine.STATE.PAUSE
 	then
 	-- LuaFormatter on
 		local enemy = e.actor.reference.object
 
 		if enemy.level * 2 > tes3.player.object.level and (enemy.objectType ~= tes3.objectType.creature or enemy.level > 2) or
 		not config.enableNoCombatForWeakEnemies then
-			stateCombat()
+			musicStateMachine:stateCombat()
 		end
 	end
 end
 
 --- @param e combatStoppedEventData
 local function combatStoppedCallback(e)
-	if currentMusicState == MusicState.COMBAT and not tes3.mobilePlayer.inCombat then
+	if musicStateMachine.state == musicStateMachine.STATE.COMBAT and not tes3.mobilePlayer.inCombat then
 		if isCellDungeon(tes3.player.cell) then
-			stateDungeon()
+			musicStateMachine:stateDungeon()
 		elseif config.enablePause then
-			statePause()
+			musicStateMachine:statePause()
 		else
-			stateExplore()
+			musicStateMachine:stateExplore()
 		end
 	end
 end
 
 --- @param e musicChangeTrackEventData
 local function musicChangeTrackCallback(e)
-	print("[Music Tweaks: DEBUG] musicChangeTrackCallback called")
+	print("[Music Tweaks: DEBUG] musicChangeTrackCallback called with e.context = " .. e.context .. ", state: " ..
+	      musicStateMachine.state)
 
 	if e.context ~= "combat" and e.context ~= "explore" then
 		return
 	end
 
-	if currentMusicState == MusicState.COMBAT then
+	if musicStateMachine.state == musicStateMachine.STATE.COMBAT then
 		if e.context == "combat" then
 			return
 		end
-	elseif currentMusicState == MusicState.DUNGEON then
-		e.music = SILENCE_FILEPATH
+	elseif musicStateMachine.state == musicStateMachine.STATE.DUNGEON then
+		e.music = constants.SILENCE_FILEPATH
 
 		return
-	elseif currentMusicState == MusicState.EXPLORE then
+	elseif musicStateMachine.state == musicStateMachine.STATE.EXPLORE then
 		if config.enablePause then
-			statePause()
+			musicStateMachine:statePause()
 		else
 			return
 		end
@@ -196,16 +123,11 @@ local function musicChangeTrackCallback(e)
 	return false
 end
 
---- @param e loadEventData
-local function loadCallback(e)
-	stateOther()
+local function loadCallback()
+	musicStateMachine:stateOther()
 end
 
 local function initialized()
-	for _, v in pairs(MusicState) do
-		validMusicState[v] = true
-	end
-
 	event.register(tes3.event.cellChanged, cellChangedCallback)
 	event.register(tes3.event.combatStart, combatStartCallback)
 	event.register(tes3.event.combatStopped, combatStoppedCallback)
