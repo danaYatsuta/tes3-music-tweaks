@@ -8,10 +8,20 @@ for _, musicState in pairs(STATE) do
 	VALID_STATES[musicState] = true
 end
 
-local MusicStateMachine = { STATE = STATE, state = STATE.OTHER, stateExploreTimer = nil }
+local MusicStateMachine = {
+	-- Read-only both outside and within MusicStateMachine, used to expose possible states
+	STATE = STATE,
+
+	-- Read-only outside MusicStateMachine, writeable only in setState function within MusicStateMachine
+	state = STATE.OTHER,
+
+	-- Should not be accessed outside MusicStateMachine, writeable only in <stop,start>StateExploreTimer method within MusicStateMachine
+	stateExploreTimer = nil,
+}
 
 -- ---------------------------- Private Functions --------------------------- --
 
+-- Should only be called in <combat,dungeon...>State methods
 local function setState(self, newState)
 	if not VALID_STATES[newState] then
 		return
