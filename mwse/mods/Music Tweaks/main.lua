@@ -49,7 +49,8 @@ local function cellChangedCallback(e)
 		if isCellDungeon(e.cell) then
 			musicStateMachine:stateDungeon()
 		end
-	elseif musicStateMachine.state == musicStateMachine.STATE.OTHER then
+	elseif musicStateMachine.state == musicStateMachine.STATE.COMBAT or musicStateMachine.state ==
+	musicStateMachine.STATE.OTHER then
 		if isCellDungeon(e.cell) then
 			musicStateMachine:stateDungeon()
 		elseif config.enablePause then
