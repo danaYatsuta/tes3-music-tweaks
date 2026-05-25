@@ -27,7 +27,7 @@ local function registerModConfig()
 	page:createSlider({
 		label = "Maximal Pause",
 		configKey = "maxPause",
-		min = 0,
+		min = 1,
 		max = 300,
 		callback = validateMinPauseAndMaxPause,
 	})
