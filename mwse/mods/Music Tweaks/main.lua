@@ -36,7 +36,21 @@ local function cellChangedCallback(e)
 		return
 	end
 
-	if musicStateMachine.state == musicStateMachine.STATE.DUNGEON then
+	-- LuaFormatter off
+	if
+		musicStateMachine.state == musicStateMachine.STATE.COMBAT or
+		musicStateMachine.state == musicStateMachine.STATE.OTHER
+	then
+	-- LuaFormatter on
+		if isCellDungeon(e.cell) then
+			musicStateMachine:stateDungeon()
+		elseif config.enablePause then
+			musicStateMachine:statePause()
+		else
+			musicStateMachine:stateExplore()
+		end
+
+	elseif musicStateMachine.state == musicStateMachine.STATE.DUNGEON then
 		if not isCellDungeon(e.cell) then
 			if config.enablePause then
 				musicStateMachine:statePause()
@@ -44,19 +58,14 @@ local function cellChangedCallback(e)
 				musicStateMachine:stateExplore()
 			end
 		end
-	elseif musicStateMachine.state == musicStateMachine.STATE.EXPLORE or musicStateMachine.state ==
-	musicStateMachine.STATE.PAUSE then
+		-- LuaFormatter off
+	elseif
+		musicStateMachine.state == musicStateMachine.STATE.EXPLORE or
+		musicStateMachine.state == musicStateMachine.STATE.PAUSE
+	then
+	-- LuaFormatter on
 		if isCellDungeon(e.cell) then
 			musicStateMachine:stateDungeon()
-		end
-	elseif musicStateMachine.state == musicStateMachine.STATE.COMBAT or musicStateMachine.state ==
-	musicStateMachine.STATE.OTHER then
-		if isCellDungeon(e.cell) then
-			musicStateMachine:stateDungeon()
-		elseif config.enablePause then
-			musicStateMachine:statePause()
-		else
-			musicStateMachine:stateExplore()
 		end
 	end
 end
