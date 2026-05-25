@@ -8,6 +8,8 @@ for _, musicState in pairs(STATE) do
 	VALID_STATES[musicState] = true
 end
 
+-- --------------------------------- Fields --------------------------------- --
+
 local MusicStateMachine = {
 	-- Read-only both outside and within MusicStateMachine, used to expose possible states
 	STATE = STATE,
