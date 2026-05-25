@@ -4,4 +4,5 @@ return mwse.loadConfig("Music Tweaks", {
 	enableNoExploreInDungeons = true,
 	minPause = 60,
 	maxPause = 120,
+	logLevel = mwse.logLevel.info,
 })

@@ -1,4 +1,5 @@
 local config = require("Music Tweaks.config")
+local log = require("Music Tweaks.log")
 
 local function validateMinPauseAndMaxPause()
 	config.minPause = math.min(config.minPause, config.maxPause)
@@ -31,6 +32,8 @@ local function registerModConfig()
 		max = 300,
 		callback = validateMinPauseAndMaxPause,
 	})
+
+	page:createLogLevelOptions({ configKey = "logLevel", logger = log })
 end
 
 event.register(tes3.event.modConfigReady, registerModConfig)

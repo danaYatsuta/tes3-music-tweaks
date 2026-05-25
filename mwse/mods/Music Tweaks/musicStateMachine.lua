@@ -1,5 +1,6 @@
 local config = require("Music Tweaks.config")
 local constants = require("Music Tweaks.constants")
+local log = require("Music Tweaks.log")
 
 local STATE = { COMBAT = "combat", DUNGEON = "dungeon", EXPLORE = "explore", OTHER = "other", PAUSE = "pause" }
 local VALID_STATES = {}
@@ -29,10 +30,8 @@ local function setState(self, newState)
 		return
 	end
 
-	tes3.messageBox("New music state: " .. newState)
-	print("[Music Tweaks: DEBUG] New music state: " .. newState)
+	log:debug("[Music Tweaks: DEBUG] New music state: " .. newState)
 	self.state = newState
-	print("[Music Tweaks: DEBUG] Now state is: " .. self.state)
 end
 
 local function stopStateExploreTimer(self)

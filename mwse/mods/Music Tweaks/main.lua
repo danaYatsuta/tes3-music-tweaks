@@ -1,5 +1,6 @@
 local config = require("Music Tweaks.config")
 local constants = require("Music Tweaks.constants")
+local log = require("Music Tweaks.log")
 local MusicStateMachine = require("Music Tweaks.musicStateMachine")
 
 local musicStateMachine = MusicStateMachine:new()
@@ -107,9 +108,6 @@ end
 
 --- @param e musicChangeTrackEventData
 local function musicChangeTrackCallback(e)
-	print("[Music Tweaks: DEBUG] musicChangeTrackCallback called with e.context = " .. e.context .. ", state: " ..
-	      musicStateMachine.state)
-
 	if e.context ~= "combat" and e.context ~= "explore" then
 		return
 	end
@@ -144,7 +142,7 @@ local function initialized()
 	event.register(tes3.event.musicChangeTrack, musicChangeTrackCallback)
 	event.register(tes3.event.load, loadCallback)
 
-	print("[Music Tweaks: INFO] Music Tweaks initialized")
+	log:info("Music Tweaks initialized")
 end
 
 event.register(tes3.event.initialized, initialized)
