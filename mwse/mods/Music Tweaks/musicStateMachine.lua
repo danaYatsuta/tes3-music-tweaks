@@ -30,7 +30,7 @@ local function setState(self, newState)
 		return
 	end
 
-	log:debug("[Music Tweaks: DEBUG] New music state: " .. newState)
+	log("[Music Tweaks: DEBUG] New music state: " .. newState)
 	self.state = newState
 end
 
@@ -46,6 +46,7 @@ local function startStateExploreTimer(self)
 	self.stateExploreTimer = timer.start({
 		duration = math.random(config.minPause, config.maxPause),
 		callback = function()
+			log("Entering explore state because state explore timer has triggered")
 			self:stateExplore()
 		end,
 		type = timer.real,

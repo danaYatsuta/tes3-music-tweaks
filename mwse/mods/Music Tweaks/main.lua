@@ -83,7 +83,7 @@ end
 
 --- @param e combatStartEventData
 local function combatStartCallback(e)
-	log("combatStoppedCallback called with %s",
+	log("combatStartCallback called with %s",
 	    { state = musicStateMachine.state, enemy = e.actor.reference.id, target = e.target.reference.id })
 
 	if e.target.reference ~= tes3.player then
