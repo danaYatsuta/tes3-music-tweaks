@@ -108,6 +108,8 @@ end
 
 --- @param e musicChangeTrackEventData
 local function musicChangeTrackCallback(e)
+	log("musicChangeTrackCallback called with %s", { state = musicStateMachine.state, context = e.context })
+
 	if e.context ~= "combat" and e.context ~= "explore" then
 		return
 	end
@@ -122,6 +124,8 @@ local function musicChangeTrackCallback(e)
 		return
 	elseif musicStateMachine.state == musicStateMachine.STATE.EXPLORE then
 		if config.enablePause then
+			log("Entering pause state because explore track ended")
+
 			musicStateMachine:statePause()
 		else
 			return
