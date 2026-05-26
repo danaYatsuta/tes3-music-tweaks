@@ -98,9 +98,8 @@ end
 function MusicStateMachine:statePause()
 	setState(self, STATE.PAUSE)
 
-	tes3.worldController.audioController:changeMusicTrack(constants.SILENCE_FILEPATH)
-
 	startStateExploreTimer(self)
+	tes3.worldController.audioController:changeMusicTrack(constants.SILENCE_FILEPATH)
 end
 
 return MusicStateMachine
