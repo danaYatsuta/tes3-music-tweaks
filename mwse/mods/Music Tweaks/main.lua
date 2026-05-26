@@ -33,6 +33,8 @@ end
 
 --- @param e cellChangedEventData
 local function cellChangedCallback(e)
+	log("cellChangedCallback called with %s", { state = musicStateMachine.state, cell = e.cell.id })
+
 	if tes3.mobilePlayer.inCombat then
 		return
 	end
@@ -44,18 +46,25 @@ local function cellChangedCallback(e)
 	then
 	-- LuaFormatter on
 		if isCellDungeon(e.cell) then
+			log("Entering dungeon state because either the player has fleed from combat to a dungeon, or loaded into a dungeon")
 			musicStateMachine:stateDungeon()
 		elseif config.enablePause then
+			log(
+			"Entering pause state because either the player has fleed from combat from a dungeon, or loaded in outside of a dungeon")
 			musicStateMachine:statePause()
 		else
+			log(
+			"Entering explore state because either the player has fleed from combat from a dungeon, or loaded in outside of a dungeon and pauses are disabled in config")
 			musicStateMachine:stateExplore()
 		end
 
 	elseif musicStateMachine.state == musicStateMachine.STATE.DUNGEON then
 		if not isCellDungeon(e.cell) then
 			if config.enablePause then
+				log("Entering pause state because player left a dungeon")
 				musicStateMachine:statePause()
 			else
+				log("Entering explore state because player left a dungeon and pauses are disabled in config")
 				musicStateMachine:stateExplore()
 			end
 		end
@@ -66,6 +75,7 @@ local function cellChangedCallback(e)
 	then
 	-- LuaFormatter on
 		if isCellDungeon(e.cell) then
+			log("Entering dungeon state because player entered a dungeon")
 			musicStateMachine:stateDungeon()
 		end
 	end
