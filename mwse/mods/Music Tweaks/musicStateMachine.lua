@@ -17,6 +17,7 @@ local MusicStateMachine = {
 
 	-- Read-only outside MusicStateMachine, writeable only in setState function within MusicStateMachine
 	state = STATE.OTHER,
+	statePrev = STATE.OTHER,
 
 	-- Should not be accessed outside MusicStateMachine, writeable only in <stop,start>StateExploreTimer method within MusicStateMachine
 	stateExploreTimer = nil,
@@ -31,6 +32,7 @@ local function setState(self, newState)
 	end
 
 	log("[Music Tweaks: DEBUG] New music state: " .. newState)
+	self.statePrev = self.state
 	self.state = newState
 end
 

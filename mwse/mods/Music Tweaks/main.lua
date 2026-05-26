@@ -130,6 +130,8 @@ local function musicChangeTrackCallback(e)
 	log("musicChangeTrackCallback called with %s", { state = musicStateMachine.state, context = e.context })
 
 	if e.context ~= "combat" and e.context ~= "explore" then
+		musicStateMachine:stateOther()
+
 		return
 	end
 
@@ -148,6 +150,18 @@ local function musicChangeTrackCallback(e)
 			musicStateMachine:statePause()
 		else
 			return
+		end
+	elseif musicStateMachine.state == musicStateMachine.STATE.OTHER then
+		if musicStateMachine.statePrev == musicStateMachine.STATE.COMBAT and e.context == "combat" then
+			log("Entering combat state because other track ended")
+			musicStateMachine:stateCombat()
+		elseif musicStateMachine.statePrev == musicStateMachine.STATE.DUNGEON then
+			log("Entering dungeon state because other track ended")
+			musicStateMachine:stateDungeon()
+		elseif musicStateMachine.statePrev == musicStateMachine.STATE.EXPLORE or musicStateMachine.statePrev ==
+		musicStateMachine.PAUSE then
+			log("Entering pause state because other track ended")
+			musicStateMachine:statePause()
 		end
 	end
 
