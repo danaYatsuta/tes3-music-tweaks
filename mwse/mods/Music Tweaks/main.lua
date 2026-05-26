@@ -95,12 +95,17 @@ end
 
 --- @param e combatStoppedEventData
 local function combatStoppedCallback(e)
+	log("combatStoppedCallback called with %s", { state = musicStateMachine.state, enemy = e.actor.reference.id })
+
 	if musicStateMachine.state == musicStateMachine.STATE.COMBAT and not tes3.mobilePlayer.inCombat then
 		if isCellDungeon(tes3.player.cell) then
+			log("Entering dungeon state because combat ended while in dungeon")
 			musicStateMachine:stateDungeon()
 		elseif config.enablePause then
+			log("Entering pause state because combat ended while outside dungeon")
 			musicStateMachine:statePause()
 		else
+			log("Entering pause state because combat ended while outside dungeon and pauses are disabled in config")
 			musicStateMachine:stateExplore()
 		end
 	end
