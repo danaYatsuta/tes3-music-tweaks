@@ -111,7 +111,7 @@ local function musicChangeTrackCallback(e)
 	log("musicChangeTrackCallback called with %s", { state = msm.state, context = e.context })
 
 	if e.context ~= "combat" and e.context ~= "explore" then
-		if msm.state ~= msm.STATE.OTHER then
+		if e.context ~= "lua" and msm.state ~= msm.STATE.OTHER then
 			msm:stateOther()
 		end
 
