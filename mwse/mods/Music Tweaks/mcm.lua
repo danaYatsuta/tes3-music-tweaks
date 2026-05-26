@@ -18,7 +18,7 @@ local function registerModConfig()
 	page:createYesNoButton({ label = "Enable no Explore music in dungeons", configKey = "enableNoExploreInDungeons" })
 
 	page:createSlider({
-		label = "Minimal Pause",
+		label = "Minimal Pause: %s sec",
 		configKey = "minPause",
 		min = 0,
 		max = 300,
@@ -26,7 +26,7 @@ local function registerModConfig()
 	})
 
 	page:createSlider({
-		label = "Maximal Pause",
+		label = "Maximal Pause: %s sec",
 		configKey = "maxPause",
 		min = 1,
 		max = 300,
