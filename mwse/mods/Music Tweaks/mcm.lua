@@ -34,6 +34,11 @@ local function registerModConfig()
 	})
 
 	page:createLogLevelOptions({ configKey = "logLevel", logger = log })
+	page:createYesNoButton({
+		label = "Log into a separate file",
+		configKey = "enableSeparateLogFile",
+		restartRequired = true,
+	})
 end
 
 event.register(tes3.event.modConfigReady, registerModConfig)

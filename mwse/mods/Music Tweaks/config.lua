@@ -5,4 +5,5 @@ return mwse.loadConfig("Music Tweaks", {
 	minPause = 60,
 	maxPause = 120,
 	logLevel = mwse.logLevel.info,
+	enableSeparateLogFile = false,
 })
