@@ -151,7 +151,10 @@ local function musicChangeTrackCallback(e)
 end
 
 local function loadCallback()
-	msm:stateOther()
+	if msm.state ~= msm.STATE.OTHER then
+		log("Entering other state because loading a game")
+		msm:stateOther()
+	end
 end
 
 local function initialized()

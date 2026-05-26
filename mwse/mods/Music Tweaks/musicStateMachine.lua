@@ -31,7 +31,11 @@ local function setState(self, newState)
 		return
 	end
 
-	log("[Music Tweaks: DEBUG] New music state: " .. newState)
+	if self.state == newState then
+		log("Trying to enter " .. newState .. " state while already in it! This shouldn't happen!")
+	end
+
+	log("New music state: " .. newState)
 	self.statePrev = self.state
 	self.state = newState
 end
