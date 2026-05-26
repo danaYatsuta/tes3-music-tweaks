@@ -73,6 +73,9 @@ end
 
 --- @param e combatStartEventData
 local function combatStartCallback(e)
+	log("combatStoppedCallback called with %s",
+	    { state = musicStateMachine.state, enemy = e.actor.reference.id, target = e.target.reference.id })
+
 	if e.target.reference ~= tes3.player then
 		return
 	end
@@ -88,6 +91,7 @@ local function combatStartCallback(e)
 
 		if enemy.level * 2 > tes3.player.object.level and (enemy.objectType ~= tes3.objectType.creature or enemy.level > 2) or
 		not config.enableNoCombatForWeakEnemies then
+			log("Entering combat state because started combat against strong enemy")
 			musicStateMachine:stateCombat()
 		end
 	end
