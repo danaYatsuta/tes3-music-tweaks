@@ -3,7 +3,7 @@ local constants = require("Music Tweaks.constants")
 local log = require("Music Tweaks.log")
 local MusicStateMachine = require("Music Tweaks.musicStateMachine")
 
-local musicStateMachine = MusicStateMachine:new()
+local msm = MusicStateMachine:new()
 
 -- ---------------------------- Helper Functions ---------------------------- --
 
@@ -15,12 +15,9 @@ local function isCellDungeon(cell)
 
 	local isInHostileInterior = not cell.isOrBehavesAsExterior and not cell.restingIsIllegal
 
-	-- LuaFormatter off
 	local isInRedMountainBeforeMainQuestComplete =
-		cell.isOrBehavesAsExterior and
-		cell.region.name == "Red Mountain Region" and
-	    tes3.getJournalIndex({ id = "C3_DestroyDagoth" }) ~= 50
-	-- LuaFormatter on
+	cell.isOrBehavesAsExterior and cell.region.name == "Red Mountain Region" and
+	tes3.getJournalIndex({ id = "C3_DestroyDagoth" }) ~= 50
 
 	if isInHostileInterior or isInRedMountainBeforeMainQuestComplete then
 		return true
@@ -33,50 +30,40 @@ end
 
 --- @param e cellChangedEventData
 local function cellChangedCallback(e)
-	log("cellChangedCallback called with %s", { state = musicStateMachine.state, cell = e.cell.id })
+	log("cellChangedCallback called with %s", { state = msm.state, cell = e.cell.id })
 
 	if tes3.mobilePlayer.inCombat then
 		return
 	end
 
-	-- LuaFormatter off
-	if
-		musicStateMachine.state == musicStateMachine.STATE.COMBAT or
-		musicStateMachine.state == musicStateMachine.STATE.OTHER
-	then
-	-- LuaFormatter on
+	if msm.state == msm.STATE.COMBAT or msm.state == msm.STATE.OTHER then
 		if isCellDungeon(e.cell) then
 			log("Entering dungeon state because either the player has fleed from combat to a dungeon, or loaded into a dungeon")
-			musicStateMachine:stateDungeon()
+			msm:stateDungeon()
 		elseif config.enablePause then
 			log(
 			"Entering pause state because either the player has fleed from combat from a dungeon, or loaded in outside of a dungeon")
-			musicStateMachine:statePause()
+			msm:statePause()
 		else
 			log(
 			"Entering explore state because either the player has fleed from combat from a dungeon, or loaded in outside of a dungeon and pauses are disabled in config")
-			musicStateMachine:stateExplore()
+			msm:stateExplore()
 		end
 
-	elseif musicStateMachine.state == musicStateMachine.STATE.DUNGEON then
+	elseif msm.state == msm.STATE.DUNGEON then
 		if not isCellDungeon(e.cell) then
 			if config.enablePause then
 				log("Entering pause state because player left a dungeon")
-				musicStateMachine:statePause()
+				msm:statePause()
 			else
 				log("Entering explore state because player left a dungeon and pauses are disabled in config")
-				musicStateMachine:stateExplore()
+				msm:stateExplore()
 			end
 		end
-		-- LuaFormatter off
-	elseif
-		musicStateMachine.state == musicStateMachine.STATE.EXPLORE or
-		musicStateMachine.state == musicStateMachine.STATE.PAUSE
-	then
-	-- LuaFormatter on
+	elseif msm.state == msm.STATE.EXPLORE or msm.state == msm.STATE.PAUSE then
 		if isCellDungeon(e.cell) then
 			log("Entering dungeon state because player entered a dungeon")
-			musicStateMachine:stateDungeon()
+			msm:stateDungeon()
 		end
 	end
 end
@@ -84,84 +71,77 @@ end
 --- @param e combatStartEventData
 local function combatStartCallback(e)
 	log("combatStartCallback called with %s",
-	    { state = musicStateMachine.state, enemy = e.actor.reference.id, target = e.target.reference.id })
+	    { state = msm.state, enemy = e.actor.reference.id, target = e.target.reference.id })
 
 	if e.target.reference ~= tes3.player then
 		return
 	end
 
-	-- LuaFormatter off
-	if
-		musicStateMachine.state == musicStateMachine.STATE.DUNGEON or
-		musicStateMachine.state == musicStateMachine.STATE.EXPLORE or
-		musicStateMachine.state == musicStateMachine.STATE.PAUSE
-	then
-	-- LuaFormatter on
+	if msm.state == msm.STATE.DUNGEON or msm.state == msm.STATE.EXPLORE or msm.state == msm.STATE.PAUSE then
 		local enemy = e.actor.reference.object
 
 		if enemy.level * 2 > tes3.player.object.level and (enemy.objectType ~= tes3.objectType.creature or enemy.level > 2) or
 		not config.enableNoCombatForWeakEnemies then
 			log("Entering combat state because started combat against strong enemy")
-			musicStateMachine:stateCombat()
+			msm:stateCombat()
 		end
 	end
 end
 
 --- @param e combatStoppedEventData
 local function combatStoppedCallback(e)
-	log("combatStoppedCallback called with %s", { state = musicStateMachine.state, enemy = e.actor.reference.id })
+	log("combatStoppedCallback called with %s", { state = msm.state, enemy = e.actor.reference.id })
 
-	if musicStateMachine.state == musicStateMachine.STATE.COMBAT and not tes3.mobilePlayer.inCombat then
+	if msm.state == msm.STATE.COMBAT and not tes3.mobilePlayer.inCombat then
 		if isCellDungeon(tes3.player.cell) then
 			log("Entering dungeon state because combat ended while in dungeon")
-			musicStateMachine:stateDungeon()
+			msm:stateDungeon()
 		elseif config.enablePause then
 			log("Entering pause state because combat ended while outside dungeon")
-			musicStateMachine:statePause()
+			msm:statePause()
 		else
 			log("Entering pause state because combat ended while outside dungeon and pauses are disabled in config")
-			musicStateMachine:stateExplore()
+			msm:stateExplore()
 		end
 	end
 end
 
 --- @param e musicChangeTrackEventData
 local function musicChangeTrackCallback(e)
-	log("musicChangeTrackCallback called with %s", { state = musicStateMachine.state, context = e.context })
+	log("musicChangeTrackCallback called with %s", { state = msm.state, context = e.context })
 
 	if e.context ~= "combat" and e.context ~= "explore" then
-		musicStateMachine:stateOther()
+		msm:stateOther()
 
 		return
 	end
 
-	if musicStateMachine.state == musicStateMachine.STATE.COMBAT then
+	if msm.state == msm.STATE.COMBAT then
 		if e.context == "combat" then
 			return
 		end
-	elseif musicStateMachine.state == musicStateMachine.STATE.DUNGEON then
+	elseif msm.state == msm.STATE.DUNGEON then
 		e.music = constants.SILENCE_FILEPATH
 
 		return
-	elseif musicStateMachine.state == musicStateMachine.STATE.EXPLORE then
+	elseif msm.state == msm.STATE.EXPLORE then
 		if config.enablePause then
 			log("Entering pause state because explore track ended")
 
-			musicStateMachine:statePause()
+			msm:statePause()
 		else
 			return
 		end
-	elseif musicStateMachine.state == musicStateMachine.STATE.OTHER then
-		if musicStateMachine.statePrev == musicStateMachine.STATE.COMBAT and e.context == "combat" then
+	elseif msm.state == msm.STATE.OTHER then
+		if msm.statePrev == msm.STATE.COMBAT and e.context == "combat" then
 			log("Entering combat state because other track ended")
-			musicStateMachine:stateCombat()
-		elseif musicStateMachine.statePrev == musicStateMachine.STATE.DUNGEON then
+			msm:stateCombat()
+		elseif msm.statePrev == msm.STATE.DUNGEON then
 			log("Entering dungeon state because other track ended")
-			musicStateMachine:stateDungeon()
-		elseif musicStateMachine.statePrev == musicStateMachine.STATE.EXPLORE or musicStateMachine.statePrev ==
-		musicStateMachine.PAUSE then
+			msm:stateDungeon()
+		elseif msm.statePrev == msm.STATE.EXPLORE or msm.statePrev == msm.PAUSE then
 			log("Entering pause state because other track ended")
-			musicStateMachine:statePause()
+			msm:statePause()
 		end
 	end
 
@@ -169,7 +149,7 @@ local function musicChangeTrackCallback(e)
 end
 
 local function loadCallback()
-	musicStateMachine:stateOther()
+	msm:stateOther()
 end
 
 local function initialized()
