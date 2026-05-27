@@ -98,10 +98,15 @@ function MusicStateMachine:stateOther()
 end
 
 function MusicStateMachine:statePause()
-	setState(self, STATE.PAUSE)
+	if config.enablePause then
+		setState(self, STATE.PAUSE)
 
-	startStateExploreTimer(self)
-	tes3.worldController.audioController:changeMusicTrack(constants.SILENCE_FILEPATH)
+		startStateExploreTimer(self)
+		tes3.worldController.audioController:changeMusicTrack(constants.SILENCE_FILEPATH)
+	else
+		log("Tried entering pause state, but pauses are disabled in config; entering explore state instead")
+		self:stateExplore()
+	end
 end
 
 return MusicStateMachine

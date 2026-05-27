@@ -41,31 +41,18 @@ local function cellChangedCallback(e)
 		if isCellDungeon(e.cell) then
 			log("Entering dungeon state because either the player has fleed from combat to a dungeon, or loaded into a dungeon")
 			msm:stateDungeon()
-		elseif config.enablePause then
+		else
 			log(
 			"Entering pause state because either the player has fleed from combat from a dungeon, or loaded in outside of a dungeon")
 			msm:statePause()
-		else
-			log(
-			"Entering explore state because either the player has fleed from combat from a dungeon, or loaded in outside of a dungeon and pauses are disabled in config")
-			msm:stateExplore()
 		end
 
-	elseif msm.state == msm.STATE.DUNGEON then
-		if not isCellDungeon(e.cell) then
-			if config.enablePause then
-				log("Entering pause state because player left a dungeon")
-				msm:statePause()
-			else
-				log("Entering explore state because player left a dungeon and pauses are disabled in config")
-				msm:stateExplore()
-			end
-		end
-	elseif msm.state == msm.STATE.EXPLORE or msm.state == msm.STATE.PAUSE then
-		if isCellDungeon(e.cell) then
-			log("Entering dungeon state because player entered a dungeon")
-			msm:stateDungeon()
-		end
+	elseif msm.state == msm.STATE.DUNGEON and not isCellDungeon(e.cell) then
+		log("Entering pause state because player left a dungeon")
+		msm:statePause()
+	elseif (msm.state == msm.STATE.EXPLORE or msm.state == msm.STATE.PAUSE) and isCellDungeon(e.cell) then
+		log("Entering dungeon state because player entered a dungeon")
+		msm:stateDungeon()
 	end
 end
 
@@ -80,8 +67,13 @@ local function combatStartCallback(e)
 	if msm.state == msm.STATE.DUNGEON or msm.state == msm.STATE.EXPLORE or msm.state == msm.STATE.PAUSE then
 		local enemy = e.actor.reference.object
 
-		if enemy.level * 2 > tes3.player.object.level and (enemy.objectType ~= tes3.objectType.creature or enemy.level > 2) or
-		not config.enableNoCombatForWeakEnemies then
+		-- LuaFormatter off
+		if
+			not config.enableNoCombatForWeakEnemies or
+			(enemy.level * 2 > tes3.player.object.level and
+			(enemy.objectType ~= tes3.objectType.creature or enemy.level > 2))
+		then
+		-- LuaFormatter on
 			log("Entering combat state because started combat against strong enemy")
 			msm:stateCombat()
 		end
@@ -96,12 +88,9 @@ local function combatStoppedCallback(e)
 		if isCellDungeon(tes3.player.cell) then
 			log("Entering dungeon state because combat ended while in a dungeon")
 			msm:stateDungeon()
-		elseif config.enablePause then
+		else
 			log("Entering pause state because combat ended while outside a dungeon")
 			msm:statePause()
-		else
-			log("Entering pause state because combat ended while outside a dungeon and pauses are disabled in config")
-			msm:stateExplore()
 		end
 	end
 end
@@ -150,13 +139,9 @@ local function musicChangeTrackCallback(e)
 		elseif isCellDungeon(tes3.player.cell) then
 			log("Entering dungeon state because other track ended and we were in a dungeon")
 			msm:stateDungeon()
-		elseif config.enablePause then
+		else
 			log("Entering pause state because other track ended and we were outside a dungeon")
 			msm:statePause()
-		else
-			log(
-			"Entering explore state because other track ended and we were outside a dungeon and pauses are disabled in config")
-			msm:stateExplore()
 		end
 	end
 
