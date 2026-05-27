@@ -48,8 +48,13 @@ local function cellChangedCallback(e)
 		end
 
 	elseif msm.state == msm.STATE.DUNGEON and not isCellDungeon(e.cell) then
-		log("Entering pause state because player left a dungeon")
-		msm:statePause()
+		if e.previousCell.id == "Imperial Prison Ship" then
+			log("Entering intro state because player left the prison boat")
+			msm:stateIntro()
+		else
+			log("Entering pause state because player left a dungeon")
+			msm:statePause()
+		end
 	elseif (msm.state == msm.STATE.EXPLORE or msm.state == msm.STATE.PAUSE) and isCellDungeon(e.cell) then
 		log("Entering dungeon state because player entered a dungeon")
 		msm:stateDungeon()
@@ -122,7 +127,7 @@ local function musicChangeTrackCallback(e)
 		e.music = constants.SILENCE_FILEPATH
 
 		return
-	elseif msm.state == msm.STATE.EXPLORE and e.context == "explore" then
+	elseif (msm.state == msm.STATE.EXPLORE or msm.state == msm.STATE.INTRO) and e.context == "explore" then
 		if config.enablePause then
 			log("Entering pause state because explore track ended and a new one was requested")
 			msm:statePause()

@@ -2,7 +2,14 @@ local config = require("Music Tweaks.config")
 local constants = require("Music Tweaks.constants")
 local log = require("Music Tweaks.log")
 
-local STATE = { COMBAT = "combat", DUNGEON = "dungeon", EXPLORE = "explore", OTHER = "other", PAUSE = "pause" }
+local STATE = {
+	COMBAT = "combat",
+	DUNGEON = "dungeon",
+	EXPLORE = "explore",
+	INTRO = "intro",
+	OTHER = "other",
+	PAUSE = "pause",
+}
 local VALID_STATES = {}
 
 for _, musicState in pairs(STATE) do
@@ -89,6 +96,12 @@ function MusicStateMachine:stateExplore()
 	setState(self, STATE.EXPLORE)
 
 	tes3.skipToNextMusicTrack({ situation = tes3.musicSituation.explore, force = true })
+end
+
+function MusicStateMachine:stateIntro()
+	setState(self, STATE.INTRO)
+
+	tes3.worldController.audioController:changeMusicTrack(constants.INTRO_FILEPATH)
 end
 
 function MusicStateMachine:stateOther()
