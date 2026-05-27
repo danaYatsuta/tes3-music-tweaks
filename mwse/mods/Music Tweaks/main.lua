@@ -94,13 +94,13 @@ local function combatStoppedCallback(e)
 
 	if msm.state == msm.STATE.COMBAT and not tes3.mobilePlayer.inCombat then
 		if isCellDungeon(tes3.player.cell) then
-			log("Entering dungeon state because combat ended while in dungeon")
+			log("Entering dungeon state because combat ended while in a dungeon")
 			msm:stateDungeon()
 		elseif config.enablePause then
-			log("Entering pause state because combat ended while outside dungeon")
+			log("Entering pause state because combat ended while outside a dungeon")
 			msm:statePause()
 		else
-			log("Entering pause state because combat ended while outside dungeon and pauses are disabled in config")
+			log("Entering pause state because combat ended while outside a dungeon and pauses are disabled in config")
 			msm:stateExplore()
 		end
 	end
@@ -139,20 +139,24 @@ local function musicChangeTrackCallback(e)
 			msm:statePause()
 		else
 			log(
-			"Letting the game play an expore track because we're outside dungeon, the previous explore track ended and pauses are disabled in config")
+			"Letting the game play an expore track because we're outside a dungeon, the previous explore track ended and pauses are disabled in config")
 
 			return
 		end
 	elseif msm.state == msm.STATE.OTHER then
-		if msm.statePrev == msm.STATE.COMBAT and e.context == "combat" then
-			log("Entering combat state because other track ended")
+		if msm.statePrevious == msm.STATE.COMBAT and e.context == "combat" then
+			log("Entering combat state because other track ended, we were in combat before it, and still are")
 			msm:stateCombat()
-		elseif msm.statePrev == msm.STATE.DUNGEON then
-			log("Entering dungeon state because other track ended")
+		elseif isCellDungeon(tes3.player.cell) then
+			log("Entering dungeon state because other track ended and we were in a dungeon")
 			msm:stateDungeon()
-		elseif msm.statePrev == msm.STATE.EXPLORE or msm.statePrev == msm.PAUSE then
-			log("Entering pause state because other track ended")
+		elseif config.enablePause then
+			log("Entering pause state because other track ended and we were outside a dungeon")
 			msm:statePause()
+		else
+			log(
+			"Entering explore state because other track ended and we were outside a dungeon and pauses are disabled in config")
+			msm:stateExplore()
 		end
 	end
 
