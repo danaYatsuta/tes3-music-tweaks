@@ -57,6 +57,8 @@ local function startStateExploreTimer(self)
 		end,
 		type = timer.real,
 	})
+
+	log("Started explore timer")
 end
 
 -- ---------------------------- Public Functions ---------------------------- --
