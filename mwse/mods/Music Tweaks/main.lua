@@ -32,6 +32,7 @@ end
 local function cellChangedCallback(e)
 	log("cellChangedCallback called with %s", { state = msm.state, cell = e.cell.id })
 
+	-- If player is in combat after a cell change, it means that the cell change wasn't entering/leaving a dungeon, nothing to do
 	if tes3.mobilePlayer.inCombat then
 		return
 	end
@@ -70,12 +71,11 @@ end
 
 --- @param e combatStartEventData
 local function combatStartCallback(e)
-	log("combatStartCallback called with %s",
-	    { state = msm.state, enemy = e.actor.reference.id, target = e.target.reference.id })
-
 	if e.target.reference ~= tes3.player then
 		return
 	end
+
+	log("combatStartCallback called with %s", { state = msm.state, enemy = e.actor.reference.id })
 
 	if msm.state == msm.STATE.DUNGEON or msm.state == msm.STATE.EXPLORE or msm.state == msm.STATE.PAUSE then
 		local enemy = e.actor.reference.object
@@ -110,6 +110,11 @@ end
 local function musicChangeTrackCallback(e)
 	log("musicChangeTrackCallback called with %s", { state = msm.state, context = e.context })
 
+	-- We only want to intercept musicChangeTrackCallback calls when game is requesting combat or explore music
+	-- Title, level up, dying music should still play as normal
+	-- Lua means that we are the ones requesting to play a track, that should always go through
+	-- There can also be lua and mwscript triggered music change requests made by other mods,
+	-- but this is outside of this mod's scope
 	if e.context ~= "combat" and e.context ~= "explore" then
 		if e.context ~= "lua" and msm.state ~= msm.STATE.OTHER then
 			msm:stateOther()
@@ -120,9 +125,12 @@ local function musicChangeTrackCallback(e)
 
 	if msm.state == msm.STATE.COMBAT then
 		if e.context == "combat" then
+			log("Letting the game play a combat track because we're in combat and the previous combat track ended")
 			return
 		end
 	elseif msm.state == msm.STATE.DUNGEON then
+		log(
+		"Letting the game play an explore track but substituting it to silence because we're in a dungeon and the previous silence track ended")
 		e.music = constants.SILENCE_FILEPATH
 
 		return
@@ -132,6 +140,8 @@ local function musicChangeTrackCallback(e)
 
 			msm:statePause()
 		else
+			log(
+			"Letting the game play an expore track because we're outside dungeon, the previous explore track ended and pauses are disabled in config")
 			return
 		end
 	elseif msm.state == msm.STATE.OTHER then

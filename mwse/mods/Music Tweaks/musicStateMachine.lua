@@ -35,7 +35,7 @@ local function setState(self, newState)
 		log("Trying to enter " .. newState .. " state while already in it! This shouldn't happen!")
 	end
 
-	log("New music state: " .. newState)
+	log("New music state: " .. self.state .. " -> " .. newState)
 	self.statePrev = self.state
 	self.state = newState
 end
