@@ -123,25 +123,24 @@ local function musicChangeTrackCallback(e)
 		return
 	end
 
-	if msm.state == msm.STATE.COMBAT then
-		if e.context == "combat" then
-			log("Letting the game play a combat track because we're in combat and the previous combat track ended")
-			return
-		end
-	elseif msm.state == msm.STATE.DUNGEON then
+	if msm.state == msm.STATE.COMBAT and e.context == "combat" then
+		log("Letting the game play a combat track because we're in combat and the previous combat track ended")
+
+		return
+	elseif msm.state == msm.STATE.DUNGEON and e.context == "explore" then
 		log(
 		"Letting the game play an explore track but substituting it to silence because we're in a dungeon and the previous silence track ended")
 		e.music = constants.SILENCE_FILEPATH
 
 		return
-	elseif msm.state == msm.STATE.EXPLORE then
+	elseif msm.state == msm.STATE.EXPLORE and e.context == "explore" then
 		if config.enablePause then
-			log("Entering pause state because explore track ended")
-
+			log("Entering pause state because explore track ended and a new one was requested")
 			msm:statePause()
 		else
 			log(
 			"Letting the game play an expore track because we're outside dungeon, the previous explore track ended and pauses are disabled in config")
+
 			return
 		end
 	elseif msm.state == msm.STATE.OTHER then
