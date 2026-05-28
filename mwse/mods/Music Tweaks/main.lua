@@ -87,7 +87,8 @@ end
 
 --- @param e combatStoppedEventData
 local function combatStoppedCallback(e)
-	log("combatStoppedCallback called with %s", { state = msm.state, enemy = e.actor.reference.id })
+	log("combatStoppedCallback called with %s",
+	    { state = msm.state, enemy = e.actor.reference.id, playerInCombat = tes3.mobilePlayer.inCombat })
 
 	if msm.state == msm.STATE.COMBAT and not tes3.mobilePlayer.inCombat then
 		if isCellDungeon(tes3.player.cell) then
