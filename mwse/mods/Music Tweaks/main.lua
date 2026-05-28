@@ -128,15 +128,20 @@ local function musicChangeTrackCallback(e)
 		e.music = constants.SILENCE_FILEPATH
 
 		return
-	elseif (msm.state == msm.STATE.EXPLORE or msm.state == msm.STATE.INTRO) and e.context == "explore" then
-		if config.enablePause then
-			log("Entering pause state because explore track ended and a new one was requested")
-			msm:statePause()
-		else
-			log(
-			"Letting the game play an expore track because we're outside a dungeon, the previous explore track ended and pauses are disabled in config")
+	elseif msm.state == msm.STATE.EXPLORE or msm.state == msm.STATE.INTRO then
+		local ac = tes3.worldController.audioController
+		local didPreviousTrackEnd = math.abs(ac.musicDuration - ac.musicPosition) < 0.001
 
-			return
+		if didPreviousTrackEnd then
+			if config.enablePause then
+				log("Entering pause state because explore track ended and a new one was requested")
+				msm:statePause()
+			else
+				log(
+				"Letting the game play an expore track because we're outside a dungeon, the previous explore track ended and pauses are disabled in config")
+
+				return
+			end
 		end
 	elseif msm.state == msm.STATE.OTHER then
 		if msm.statePrevious == msm.STATE.COMBAT and e.context == "combat" then
